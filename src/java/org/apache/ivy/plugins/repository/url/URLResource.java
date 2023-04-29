@@ -32,6 +32,7 @@ import org.apache.ivy.util.url.URLHandler;
 import org.apache.ivy.util.url.URLHandler.URLInfo;
 import org.apache.ivy.util.url.URLHandlerRegistry;
 
+@SuppressWarnings("deprecation")
 public class URLResource implements LocalizableResource {
     private final URL url;
 
@@ -74,12 +75,12 @@ public class URLResource implements LocalizableResource {
         return lastModified;
     }
 
-    @SuppressWarnings("deprecation")
     private void init() {
         final URLHandler handler = URLHandlerRegistry.getDefault();
         final URLInfo info;
         if (handler instanceof TimeoutConstrainedURLHandler) {
-            info = ((TimeoutConstrainedURLHandler) handler).getURLInfo(this.url, this.timeoutConstraint);
+            info = ((TimeoutConstrainedURLHandler) handler).getURLInfo(this.url,
+                this.timeoutConstraint);
         } else {
             info = handler.getURLInfo(this.url);
         }
@@ -115,19 +116,19 @@ public class URLResource implements LocalizableResource {
         return url.getProtocol().equals("file");
     }
 
-    @SuppressWarnings("deprecation")
     public InputStream openStream() throws IOException {
         final URLHandler handler = URLHandlerRegistry.getDefault();
         if (handler instanceof TimeoutConstrainedURLHandler) {
-            return ((TimeoutConstrainedURLHandler) handler).openStream(this.url, this.timeoutConstraint);
+            return ((TimeoutConstrainedURLHandler) handler).openStream(this.url,
+                this.timeoutConstraint);
         }
         return handler.openStream(this.url);
     }
 
     public File getFile() {
         if (!isLocal()) {
-            throw new IllegalStateException("Cannot get the local file for the not local resource "
-                    + url);
+            throw new IllegalStateException(
+                    "Cannot get the local file for the not local resource " + url);
         }
         try {
             return new File(url.toURI());

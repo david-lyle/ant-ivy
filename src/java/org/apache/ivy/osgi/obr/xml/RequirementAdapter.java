@@ -66,8 +66,8 @@ public class RequirementAdapter {
                 parseCompareFilter(compareFilter, true);
             }
         } else {
-            throw new UnsupportedFilterException("Unsupported filter: "
-                    + filter.getClass().getName());
+            throw new UnsupportedFilterException(
+                    "Unsupported filter: " + filter.getClass().getName());
         }
     }
 
@@ -92,6 +92,7 @@ public class RequirementAdapter {
         return range;
     }
 
+    @SuppressWarnings({"incomplete-switch"})
     private void parseCompareFilter(CompareFilter compareFilter, boolean not)
             throws UnsupportedFilterException {
         String att = compareFilter.getLeftValue();

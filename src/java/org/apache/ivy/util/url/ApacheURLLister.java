@@ -38,6 +38,7 @@ import org.apache.ivy.util.url.URLHandler.URLInfo;
  * server listing, as the one used at ibiblio, and with Apache 2.0.53 server listing, as the one on
  * mirrors.sunsite.dk.
  */
+@SuppressWarnings("deprecation")
 public class ApacheURLLister {
     // ~ Static variables/initializers ------------------------------------------
 
@@ -101,7 +102,6 @@ public class ApacheURLLister {
      * @throws IOException
      *             If an error occurs retrieving the HTML.
      */
-    @SuppressWarnings("deprecation")
     public List<URL> retrieveListing(URL url, boolean includeFiles, boolean includeDirectories)
             throws IOException {
         List<URL> urlList = new ArrayList<>();

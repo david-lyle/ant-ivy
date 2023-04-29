@@ -41,9 +41,12 @@ import org.apache.ivy.util.Checks;
  * it is requested from several module. In this case you will have one VisitNode per parent and per
  * root module configuration. Thus VisitNode stores data specific to the visit:
  * <dl>
- * <dd>parent</dd><dt>the node from which the visit is occurring</dt>
- * <dd>parentConf</dd><dt>the configuration of the parent in which this node is visited</dt>
- * <dd>rootModuleConf</dd><dt>the configuration of the root module which is currently resolved</dt>
+ * <dd>parent</dd>
+ * <dt>the node from which the visit is occurring</dt>
+ * <dd>parentConf</dd>
+ * <dt>the configuration of the parent in which this node is visited</dt>
+ * <dd>rootModuleConf</dd>
+ * <dt>the configuration of the root module which is currently resolved</dt>
  * </dl>
  */
 public class VisitNode {
@@ -350,7 +353,9 @@ public class VisitNode {
         return traverse(parent, parentConf, child, null);
     }
 
-    private VisitNode traverse(VisitNode parent, String parentConf, IvyNode node, IvyNodeUsage usage) {
+    @SuppressWarnings("unlikely-arg-type")
+    private VisitNode traverse(VisitNode parent, String parentConf, IvyNode node,
+            IvyNodeUsage usage) {
         if (getPath().contains(node)) {
             IvyContext.getContext().getCircularDependencyStrategy()
                     .handleCircularDependency(toMrids(getPath(), node.getId()));

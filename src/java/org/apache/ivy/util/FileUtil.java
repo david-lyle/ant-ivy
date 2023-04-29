@@ -17,10 +17,7 @@
  */
 package org.apache.ivy.util;
 
-import org.apache.ivy.core.settings.TimeoutConstraint;
-import org.apache.ivy.util.url.TimeoutConstrainedURLHandler;
-import org.apache.ivy.util.url.URLHandler;
-import org.apache.ivy.util.url.URLHandlerRegistry;
+import static java.util.jar.Pack200.newUnpacker;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
@@ -43,14 +40,19 @@ import java.util.List;
 import java.util.Stack;
 import java.util.StringTokenizer;
 import java.util.jar.JarOutputStream;
+import java.util.jar.Pack200;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.ZipInputStream;
 
-import static java.util.jar.Pack200.newUnpacker;
+import org.apache.ivy.core.settings.TimeoutConstraint;
+import org.apache.ivy.util.url.TimeoutConstrainedURLHandler;
+import org.apache.ivy.util.url.URLHandler;
+import org.apache.ivy.util.url.URLHandlerRegistry;
 
 /**
  * Utility class used to deal with file related operations, like copy, full reading, symlink, ...
  */
+@SuppressWarnings("deprecation")
 public final class FileUtil {
 
     private FileUtil() {
@@ -64,17 +66,21 @@ public final class FileUtil {
     private static final byte[] EMPTY_BUFFER = new byte[0];
 
     /**
-     * Creates a symbolic link at {@code link} whose target will be the {@code target}. Depending
-     * on the underlying filesystem, this method may not always be able to create a symbolic link,
-     * in which case this method returns {@code false}.
+     * Creates a symbolic link at {@code link} whose target will be the {@code target}. Depending on
+     * the underlying filesystem, this method may not always be able to create a symbolic link, in
+     * which case this method returns {@code false}.
      *
-     * @param target    The {@link File} which will be the target of the symlink being created
-     * @param link      The path to the symlink that needs to be created
-     * @param overwrite {@code true} if any existing file at {@code link} has to be overwritten.
-     *                  False otherwise
+     * @param target
+     *            The {@link File} which will be the target of the symlink being created
+     * @param link
+     *            The path to the symlink that needs to be created
+     * @param overwrite
+     *            {@code true} if any existing file at {@code link} has to be overwritten. False
+     *            otherwise
      * @return Returns true if the symlink was successfully created. Returns false if the symlink
-     * could not be created
-     * @throws IOException if {@link Files#createSymbolicLink} fails
+     *         could not be created
+     * @throws IOException
+     *             if {@link Files#createSymbolicLink} fails
      */
     public static boolean symlink(final File target, final File link, final boolean overwrite)
             throws IOException {
@@ -92,7 +98,8 @@ public final class FileUtil {
             // link. If it is and if we are asked to overwrite then we *only* break the link
             // in preparation of symlink creation, later in this method
             if (Files.isSymbolicLink(link.toPath()) && overwrite) {
-                Message.verbose("Un-linking existing symbolic link " + link + " during symlink creation, since overwrite=true");
+                Message.verbose("Un-linking existing symbolic link " + link
+                        + " during symlink creation, since overwrite=true");
                 Files.delete(link.toPath());
             }
             // make sure the "link" that is being created has the necessary parent directories
@@ -109,22 +116,27 @@ public final class FileUtil {
      * This is the same as calling {@link #copy(File, File, CopyProgressListener, boolean)} with
      * {@code overwrite} param as {@code true}
      *
-     * @param src  The source to copy
-     * @param dest The destination
-     * @param l    A {@link CopyProgressListener}. Can be null
+     * @param src
+     *            The source to copy
+     * @param dest
+     *            The destination
+     * @param l
+     *            A {@link CopyProgressListener}. Can be null
      * @return Returns true if the file was copied. Else returns false
-     * @throws IOException If any exception occurs during the copy operation
+     * @throws IOException
+     *             If any exception occurs during the copy operation
      */
     public static boolean copy(File src, File dest, CopyProgressListener l) throws IOException {
         return copy(src, dest, l, false);
     }
 
-    public static boolean prepareCopy(final File src, final File dest, final boolean overwrite) throws IOException {
+    public static boolean prepareCopy(final File src, final File dest, final boolean overwrite)
+            throws IOException {
         if (src.isDirectory()) {
             if (dest.exists()) {
                 if (!dest.isDirectory()) {
-                    throw new IOException("impossible to copy: destination is not a directory: "
-                            + dest);
+                    throw new IOException(
+                            "impossible to copy: destination is not a directory: " + dest);
                 }
             } else {
                 dest.mkdirs();
@@ -177,7 +189,8 @@ public final class FileUtil {
         // check if it's the same file (the src and the dest). if they are the same, skip the copy
         try {
             if (Files.isSameFile(src.toPath(), dest.toPath())) {
-                Message.verbose("Skipping copy of file " + src + " to " + dest + " since they are the same file");
+                Message.verbose("Skipping copy of file " + src + " to " + dest
+                        + " since they are the same file");
                 // we consider the file as copied if overwrite is true
                 return overwrite;
             }
@@ -185,7 +198,8 @@ public final class FileUtil {
             // ignore and move on and attempt the copy
         } catch (IOException ioe) {
             // log and move on and attempt the copy
-            Message.verbose("Could not determine if " + src + " and dest " + dest + " are the same file", ioe);
+            Message.verbose(
+                "Could not determine if " + src + " and dest " + dest + " are the same file", ioe);
         }
         copy(new FileInputStream(src), dest, l);
         long srcLen = src.length();
@@ -246,20 +260,19 @@ public final class FileUtil {
         return true;
     }
 
-    @SuppressWarnings("deprecation")
     public static void copy(final URL src, final File dest, final CopyProgressListener listener,
-                            final TimeoutConstraint timeoutConstraint) throws IOException {
+            final TimeoutConstraint timeoutConstraint) throws IOException {
         final URLHandler handler = URLHandlerRegistry.getDefault();
         if (handler instanceof TimeoutConstrainedURLHandler) {
-            ((TimeoutConstrainedURLHandler) handler).download(src, dest, listener, timeoutConstraint);
+            ((TimeoutConstrainedURLHandler) handler).download(src, dest, listener,
+                timeoutConstraint);
             return;
         }
         handler.download(src, dest, listener);
     }
 
-    @SuppressWarnings("deprecation")
     public static void copy(final File src, final URL dest, final CopyProgressListener listener,
-                            final TimeoutConstraint timeoutConstraint) throws IOException {
+            final TimeoutConstraint timeoutConstraint) throws IOException {
         final URLHandler handler = URLHandlerRegistry.getDefault();
         if (handler instanceof TimeoutConstrainedURLHandler) {
             ((TimeoutConstrainedURLHandler) handler).upload(src, dest, listener, timeoutConstraint);
@@ -447,8 +460,10 @@ public final class FileUtil {
      * new File("test/dir1/dir2/file.txt") }</code> Note that if root is not an ancestor of file, or
      * if root is null, all directories from the file system root will be returned.
      *
-     * @param root File
-     * @param file File
+     * @param root
+     *            File
+     * @param file
+     *            File
      * @return List&lt;File&gt;
      */
     public static List<File> getPathFiles(File root, File file) {
@@ -522,16 +537,19 @@ public final class FileUtil {
      * Unlike {@link File#getCanonicalPath()} this method specifically does not resolve symbolic
      * links.
      *
-     * @param path the path to be normalized.
+     * @param path
+     *            the path to be normalized.
      * @return the normalized version of the path.
-     * @throws NullPointerException if path is null.
+     * @throws NullPointerException
+     *             if path is null.
      */
     public static File normalize(final String path) {
         final Stack<String> s = new Stack<>();
         final DissectedPath dissectedPath = dissect(path);
         s.push(dissectedPath.root);
 
-        final StringTokenizer tok = new StringTokenizer(dissectedPath.remainingPath, File.separator);
+        final StringTokenizer tok = new StringTokenizer(dissectedPath.remainingPath,
+                File.separator);
         while (tok.hasMoreTokens()) {
             String thisToken = tok.nextToken();
             if (".".equals(thisToken)) {
@@ -602,7 +620,8 @@ public final class FileUtil {
         if (pathToDissect.length() > 1 && pathToDissect.charAt(1) == sep) {
             int nextsep = pathToDissect.indexOf(sep, 2);
             nextsep = pathToDissect.indexOf(sep, nextsep + 1);
-            final String root = (nextsep > 2) ? pathToDissect.substring(0, nextsep + 1) : pathToDissect;
+            final String root = (nextsep > 2) ? pathToDissect.substring(0, nextsep + 1)
+                    : pathToDissect;
             final String rest = pathToDissect.substring(root.length());
             return new DissectedPath(root, rest);
         }
@@ -613,7 +632,8 @@ public final class FileUtil {
     /**
      * Get the length of the file, or the sum of the children lengths if it is a directory
      *
-     * @param file File
+     * @param file
+     *            File
      * @return long
      */
     public static long getFileLength(File file) {
@@ -738,8 +758,7 @@ public final class FileUtil {
 
         @Override
         public String toString() {
-            return "Dissected Path [root=" + root + ", remainingPath="
-                    + remainingPath + "]";
+            return "Dissected Path [root=" + root + ", remainingPath=" + remainingPath + "]";
         }
     }
 }
