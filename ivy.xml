@@ -53,9 +53,11 @@
         <dependency org="com.jcraft" name="jsch.agentproxy.connector-factory" rev="${jsch.agentproxy.version}" conf="default,sftp"/>
         <dependency org="com.jcraft" name="jsch.agentproxy.jsch" rev="${jsch.agentproxy.version}" conf="default,sftp"/>
         <dependency org="org.bouncycastle" name="bcpg-jdk15on" rev="${bouncycastle.version}" conf="default"/>
-        <dependency org="org.bouncycastle" name="bcprov-jdk15on" rev="${bouncycastle.version}" conf="default"/>
-		<dependency org="software.amazon.awssdk" name="bom" rev="${awssdk.version}" conf="default"/>
-		
+        <dependency org="org.bouncycastle" name="bcprov-jdk15on" rev="${bouncycastle.version}" conf="default"/>			
+        <dependency org="software.amazon.awssdk" name="codeartifact" rev="${awssdk.version}" conf="default"/>
+        <dependency org="software.amazon.awssdk" name="ssooidc" rev="${awssdk.version}" conf="default"/>
+        <dependency org="software.amazon.awssdk" name="sso" rev="${awssdk.version}" conf="default"/>
+               
         <!-- Test dependencies -->
         <dependency org="junit" name="junit" rev="${junit.version}" conf="test"/>
         <dependency org="org.hamcrest" name="hamcrest-core" rev="${hamcrest.version}" conf="test"/>
