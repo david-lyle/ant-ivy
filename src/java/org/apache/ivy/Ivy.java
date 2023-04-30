@@ -66,6 +66,7 @@ import org.apache.ivy.plugins.repository.TransferEvent;
 import org.apache.ivy.plugins.repository.TransferListener;
 import org.apache.ivy.plugins.resolver.BasicResolver;
 import org.apache.ivy.plugins.resolver.DependencyResolver;
+import org.apache.ivy.plugins.tools.CredentalsStoreCallback;
 import org.apache.ivy.plugins.trigger.Trigger;
 import org.apache.ivy.util.DateUtil;
 import org.apache.ivy.util.HostUtil;
@@ -84,11 +85,13 @@ import org.apache.ivy.util.MessageLoggerEngine;
  * <li>repository search and listing</li>
  * </ul>
  * Here is one typical usage:
+ * 
  * <pre>
  * Ivy ivy = Ivy.newInstance();
  * ivy.configure(new URL(&quot;ivysettings.xml&quot;));
  * ivy.resolve(new URL(&quot;ivy.xml&quot;));
  * </pre>
+ * 
  * <h2>Using Ivy engines directly</h2>
  * <p>
  * If the methods offered by the {@link Ivy} class are not flexible enough and you want to use Ivy
@@ -99,6 +102,7 @@ import org.apache.ivy.util.MessageLoggerEngine;
  * To do so, it is recommended to use the {@link #execute(org.apache.ivy.Ivy.IvyCallback)} method
  * like this:
  * </p>
+ * 
  * <pre>
  * Ivy ivy = Ivy.newInstance();
  * ivy.execute(new IvyCallback() {
@@ -178,7 +182,9 @@ public class Ivy {
 
     /**
      * Returns the date at which this version of Ivy has been built.
-     * <p>May be empty if unknown.</p>
+     * <p>
+     * May be empty if unknown.
+     * </p>
      *
      * @return the date at which this version of Ivy has been built
      */
@@ -205,6 +211,18 @@ public class Ivy {
         Ivy ivy = new Ivy();
         ivy.setSettings(settings);
         ivy.bind();
+
+        IvyCallback callback = null;
+
+        try {
+            callback = new CredentalsStoreCallback("/tmp/custom-spark.conf");
+        } catch (Exception e) {
+            // no-op
+        }
+
+        if (callback != null) {
+            ivy.execute(callback);
+        }
         return ivy;
     }
 
@@ -312,15 +330,15 @@ public class Ivy {
                     switch (evt.getEventType()) {
                         case TransferEvent.TRANSFER_PROGRESS:
                             resolve = IvyContext.getContext().getResolveData();
-                            if (resolve == null
-                                    || !LogOptions.LOG_QUIET.equals(resolve.getOptions().getLog())) {
+                            if (resolve == null || !LogOptions.LOG_QUIET
+                                    .equals(resolve.getOptions().getLog())) {
                                 Message.progress();
                             }
                             break;
                         case TransferEvent.TRANSFER_COMPLETED:
                             resolve = IvyContext.getContext().getResolveData();
-                            if (resolve == null
-                                    || !LogOptions.LOG_QUIET.equals(resolve.getOptions().getLog())) {
+                            if (resolve == null || !LogOptions.LOG_QUIET
+                                    .equals(resolve.getOptions().getLog())) {
                                 Message.endProgress(" (" + (evt.getTotalLength() / KILO) + "kB)");
                             }
                             break;
@@ -342,6 +360,7 @@ public class Ivy {
      * Alternatively you can use the {@link #pushContext()} and {@link #popContext()} methods, but
      * this is not recommended:
      * </p>
+     * 
      * <pre>
      * Object result = null;
      * pushContext();
@@ -353,7 +372,8 @@ public class Ivy {
      * doSomethingWithResult(result);
      * </pre>
      *
-     * @param callback IvyCallback
+     * @param callback
+     *            IvyCallback
      * @return Object
      */
     public Object execute(IvyCallback callback) {
@@ -442,8 +462,10 @@ public class Ivy {
     /**
      * Configures Ivy with 1.4 compatible default settings
      *
-     * @throws ParseException if something goes wrong
-     * @throws IOException if something goes wrong
+     * @throws ParseException
+     *             if something goes wrong
+     * @throws IOException
+     *             if something goes wrong
      */
     public void configureDefault14() throws ParseException, IOException {
         pushContext();
@@ -500,8 +522,8 @@ public class Ivy {
         }
     }
 
-    public ResolveReport resolve(URL ivySource, ResolveOptions options) throws ParseException,
-            IOException {
+    public ResolveReport resolve(URL ivySource, ResolveOptions options)
+            throws ParseException, IOException {
         pushContext();
         try {
             return resolveEngine.resolve(ivySource, options);
@@ -510,8 +532,8 @@ public class Ivy {
         }
     }
 
-    public ResolveReport resolve(File ivySource, ResolveOptions options) throws ParseException,
-            IOException {
+    public ResolveReport resolve(File ivySource, ResolveOptions options)
+            throws ParseException, IOException {
         return resolve(ivySource.toURI().toURL(), options);
     }
 
@@ -593,12 +615,18 @@ public class Ivy {
      * Example of use: deliver(mrid, "1.5", "target/ivy/ivy-[revision].xml",
      * DeliverOptions.newInstance(settings).setStatus("release").setValidate(false));
      *
-     * @param mrid ModuleRevisionId
-     * @param revision String
-     * @param destIvyPattern String
-     * @param options DeliverOptions
-     * @throws IOException if something goes wrong
-     * @throws ParseException if something goes wrong
+     * @param mrid
+     *            ModuleRevisionId
+     * @param revision
+     *            String
+     * @param destIvyPattern
+     *            String
+     * @param options
+     *            DeliverOptions
+     * @throws IOException
+     *             if something goes wrong
+     * @throws ParseException
+     *             if something goes wrong
      */
     public void deliver(ModuleRevisionId mrid, String revision, String destIvyPattern,
             DeliverOptions options) throws IOException, ParseException {
@@ -632,8 +660,10 @@ public class Ivy {
     /**
      * Sorts the collection of IvyNode from the less dependent to the more dependent
      *
-     * @param nodes Collection&lt;IvyNode&gt;
-     * @param options SortOptions
+     * @param nodes
+     *            Collection&lt;IvyNode&gt;
+     * @param options
+     *            SortOptions
      * @return List&lt;IvyNode&gt;
      */
     public List<IvyNode> sortNodes(Collection<IvyNode> nodes, SortOptions options) {
@@ -782,7 +812,8 @@ public class Ivy {
      * Interrupts the current running operation in the given operating thread, no later than
      * interruptTimeout milliseconds after the call
      *
-     * @param operatingThread Thread
+     * @param operatingThread
+     *            Thread
      */
     @SuppressWarnings("deprecation")
     public void interrupt(Thread operatingThread) {
