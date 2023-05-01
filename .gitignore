@@ -21,3 +21,7 @@ test/repositories/norevision/mod1.1.jar
 test/test-repo/bundlerepo/*.jar
 test/test-repo/ivyrepo/org.apache.ivy.osgi
 out/
+# Eclipse
+.classpath
+.project
+.settings/
