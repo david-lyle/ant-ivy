@@ -54,6 +54,7 @@
         <dependency org="com.jcraft" name="jsch.agentproxy.jsch" rev="${jsch.agentproxy.version}" conf="default,sftp"/>
         <dependency org="org.bouncycastle" name="bcpg-jdk15on" rev="${bouncycastle.version}" conf="default"/>
         <dependency org="org.bouncycastle" name="bcprov-jdk15on" rev="${bouncycastle.version}" conf="default"/>
+ 		<dependency org="com.databricks.ivy.plugin.tools" name="ivy-credentials-plugin" rev="0.1.0-SNAPSHOT" conf="default"/>
 
         <!-- Test dependencies -->
         <dependency org="junit" name="junit" rev="${junit.version}" conf="test"/>
