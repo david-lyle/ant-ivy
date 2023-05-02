@@ -58,9 +58,6 @@
                 <sysproperty key="ivy.local.default.root" value="${tutorial.local-repo}"/>
                 <sysproperty key="ivy.cache.ttl.default" value="1s"/>
                 <sysproperty key="skip.download" value="true"/>
-                <!-- We select specific HTTPS protocols, based on the Java version we are running
-                    on -->
-                <sysproperty key="https.protocols" value="${java.sysprop.https.protocols}"/>
                 <arg line="-f @{antfile}"/>
                 <arg line="@{target}"/>
             </java>
@@ -483,7 +480,7 @@
 
     <target name="rat" depends="init-ivy">
         <property name="rat.failOnError" value="true"/>
-        <ivy:cachepath organisation="org.apache.rat" module="apache-rat-tasks" revision="0.12"
+        <ivy:cachepath organisation="org.apache.rat" module="apache-rat-tasks" revision="0.15"
                        inline="true" conf="default" pathid="rat.classpath"
                        log="download-only"/>
 

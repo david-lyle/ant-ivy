@@ -23,12 +23,6 @@
     <property file="build.properties"/>
 
     <property name="final.name" value="ivy.jar"/>
-    <!-- Java 7 runs into TLS protocol issues when dealing with repositories
-    that no longer support older protocols -->
-    <condition property="java.sysprop.https.protocols" value="" else="TLSv1.2">
-        <javaversion atleast="1.8"/>
-    </condition>
-
 
     <target name="init-ivy-user-home" unless="ivy.use.local.home">
         <condition property="ivy.home" value="${env.IVY_HOME}">
@@ -259,10 +253,6 @@
                 <exclude name="**/*.java"/>
             </fileset>
         </copy>
-
-        <!-- copy antlib for backward compatibility with fr.jayasoft.ivy package -->
-        <copy file="${ant.classes.build.dir}/org/apache/ivy/ant/antlib.xml"
-                todir="${ant.classes.build.dir}/fr/jayasoft/ivy/ant"/>
     </target>
 
     <target name="compile-optional" depends="compile-ant">
@@ -438,7 +428,7 @@
     </target>
 
     <target name="init-jacoco" depends="jar" unless="skip.test">
-        <ivy:cachepath organisation="org.jacoco" module="org.jacoco.ant" revision="0.8.3"
+        <ivy:cachepath organisation="org.jacoco" module="org.jacoco.ant" revision="${jacoco.version}"
                        inline="true" conf="default" pathid="jacoco.classpath" log="download-only"/>
         <taskdef uri="antlib:org.jacoco.ant" resource="org/jacoco/ant/antlib.xml"
                  classpathref="jacoco.classpath"/>
@@ -449,8 +439,10 @@
 
         <!-- multiple runs into the same logfile let the later report generation fail -->
         <delete file="${jacoco.log}"/>
+        <property name="jacoco.coverage.enabled" value="true"/>
         <jacoco:coverage xmlns:jacoco="antlib:org.jacoco.ant" destfile="${jacoco.log}"
-                         exclclassloader="sun.reflect.DelegatingClassLoader:javassist.Loader">
+                         exclclassloader="sun.reflect.DelegatingClassLoader:javassist.Loader"
+                         enabled="${jacoco.coverage.enabled}">
             <junit
                 haltonfailure="off"
                 haltonerror="off"
@@ -470,9 +462,6 @@
                 <syspropertyset>
                     <propertyref prefix="http"/>
                 </syspropertyset>
-                <!-- We select specific HTTPS protocols, based on the Java version we are running
-                    on -->
-                <sysproperty key="https.protocols" value="${java.sysprop.https.protocols}"/>
 
                 <!-- Added this to test IVY-65 -->
                 <jvmarg value="-Duser.region=TR"/>
