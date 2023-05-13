@@ -1,0 +1,7 @@
+<ivysettings>
+    <properties file="file:///tmp/custom-spark.conf"/>
+    <credentials realm="${spark.databricks.driver.maven.credential.realm}" domain="${spark.databricks.driver.maven.credential.aws.domain}"
+                        host="${spark.databricks.driver.maven.credential.host}" username="${spark.databricks.driver.maven.credential.user}"
+                        passwd="${spark.databricks.driver.maven.credential.passwd}" />
+</ivysettings>
+

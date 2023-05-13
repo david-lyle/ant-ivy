@@ -1,4 +1,3 @@
-
 <!--
    Licensed to the Apache Software Foundation (ASF) under one
    or more contributor license agreements.  See the NOTICE file
@@ -18,11 +17,7 @@
    under the License.
 -->
 <ivysettings>
-	<properties file="file:///dbfs/FileStore/ivy/conf/credentials.properties"/>
-  	<credentials realm="${spark.databricks.driver.maven.credential.realm}" domain="${spark.databricks.driver.maven.credential.aws.domain}"  
-  			host="${spark.databricks.driver.maven.credential.host}" username="${spark.databricks.driver.maven.credential.user}" 
-  			passwd="${spark.databricks.driver.maven.credential.passwd}" />
-     <property name="ivy.local.default.root"             value="${ivy.default.ivy.user.dir}/local" override="false"/>
+    <property name="ivy.local.default.root"             value="${ivy.default.ivy.user.dir}/local" override="false"/>
     <property name="ivy.local.default.ivy.pattern"      value="[organisation]/[module]/[revision]/[type]s/[artifact].[ext]" override="false"/>
     <property name="ivy.local.default.artifact.pattern" value="[organisation]/[module]/[revision]/[type]s/[artifact].[ext]" override="false"/>
     <resolvers>
@@ -30,6 +25,5 @@
             <ivy pattern="${ivy.local.default.root}/${ivy.local.default.ivy.pattern}" />
             <artifact pattern="${ivy.local.default.root}/${ivy.local.default.artifact.pattern}" />
         </filesystem>
-    </resolvers> 			
-  			
+    </resolvers>
 </ivysettings>

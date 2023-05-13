@@ -18,6 +18,7 @@
 package org.apache.ivy.core.settings;
 
 import org.apache.ivy.Ivy;
+import org.apache.ivy.core.IvyContext;
 import org.apache.ivy.core.IvyPatternHelper;
 import org.apache.ivy.core.NormalRelativeUrlResolver;
 import org.apache.ivy.core.RelativeUrlResolver;
@@ -77,6 +78,7 @@ import org.apache.ivy.plugins.resolver.AbstractWorkspaceResolver;
 import org.apache.ivy.plugins.resolver.ChainResolver;
 import org.apache.ivy.plugins.resolver.DependencyResolver;
 import org.apache.ivy.plugins.resolver.DualResolver;
+import org.apache.ivy.plugins.resolver.IBiblioResolver;
 import org.apache.ivy.plugins.resolver.ResolverSettings;
 import org.apache.ivy.plugins.resolver.WorkspaceChainResolver;
 import org.apache.ivy.plugins.signer.SignatureGenerator;
@@ -88,6 +90,7 @@ import org.apache.ivy.plugins.version.SubVersionMatcher;
 import org.apache.ivy.plugins.version.VersionMatcher;
 import org.apache.ivy.plugins.version.VersionRangeMatcher;
 import org.apache.ivy.util.Checks;
+import org.apache.ivy.util.DefaultMessageLogger;
 import org.apache.ivy.util.FileUtil;
 import org.apache.ivy.util.Message;
 import org.apache.ivy.util.StringUtils;
@@ -111,6 +114,7 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Properties;
 
 import static org.apache.ivy.util.StringUtils.splitToArray;
@@ -727,10 +731,24 @@ public class IvySettings implements SortEngineSettings, PublishEngineSettings, P
             throw new NullPointerException("null resolver");
         }
         init(resolver);
+
         resolversMap.put(resolver.getName(), resolver);
-        if (resolver instanceof ChainResolver) {
+        if (resolver instanceof ChainResolver) {        
+            IvyContext ic = IvyContext.getContext();
+            IvySettings id = ic.getIvy().getSettings();       
+            Boolean overrideRepos = id.getVariableAsBoolean("spark.databricks.driver.maven.override.repos", false);            
             List<DependencyResolver> subresolvers = ((ChainResolver) resolver).getResolvers();
             for (DependencyResolver dr : subresolvers) {
+                if(overrideRepos && dr instanceof IBiblioResolver 
+                        && (dr.getName().equals("central") 
+                                || dr.getName().equals("spark-packages"))){
+                    String newCentral = id.getVariable("spark.databricks.driver.preferredMavenCentralMirrorUrl");
+                    Message.info("For Resolver: " + dr.getClass().getName() + ":" + dr.getName());
+                    Message.info("newCentral is " + newCentral);
+                    Message.info("Override Repos is " + String.valueOf(overrideRepos));                   
+                    Message.info("Overriding resolver " + dr.getName());
+                    ((IBiblioResolver) dr).setRoot(newCentral);  
+                }
                 addResolver(dr);
             }
         } else if (resolver instanceof DualResolver) {
@@ -742,7 +760,7 @@ public class IvySettings implements SortEngineSettings, PublishEngineSettings, P
             if (artifactResolver != null) {
                 addResolver(artifactResolver);
             }
-        }
+        } 
     }
 
     public synchronized void setDefaultCache(File cacheDirectory) {
